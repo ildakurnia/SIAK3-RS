@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, UserRole } from '../types';
 import { ShieldCheck, Lock, Mail, UserCheck, ArrowRight, Sparkles, Building2 } from 'lucide-react';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 interface LoginProps {
   onLoginSuccess: (user: User) => void;
@@ -10,7 +11,7 @@ export const MOCK_USERS: User[] = [
   {
     id: 'user-1',
     name: 'Dian Dwi Martha',
-    email: 'dian.dwi.martha@rumahsakit.go.id',
+    email: 'dian@k3.com',
     nip: '19920815 202012 2 004',
     role: 'Auditor K3',
   },
@@ -21,28 +22,62 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [emailOrNip, setEmailOrNip] = useState(MOCK_USERS[0].email);
   const [password, setPassword] = useState('123456');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSelectPreset = (u: User) => {
     setSelectedPreset(u);
     setEmailOrNip(u.email);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      // Find matching user or use selected preset
-      const matched = MOCK_USERS.find(
-        (u) => u.email.toLowerCase() === emailOrNip.toLowerCase() || u.nip === emailOrNip
-      ) || {
-        ...selectedPreset,
-        email: emailOrNip,
-      };
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: emailOrNip,
+          password: password,
+        });
 
-      onLoginSuccess(matched);
-    }, 600);
+        setIsLoading(false);
+
+        if (error) {
+          setErrorMessage(error.message === 'Invalid login credentials' ? 'Email atau Kata Sandi salah.' : error.message);
+          return;
+        }
+
+        if (data.user) {
+          const name = data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Auditor';
+          const nip = data.user.user_metadata?.nip || '19920815 202012 2 004';
+          const role = data.user.user_metadata?.role || 'Auditor K3';
+
+          onLoginSuccess({
+            id: data.user.id,
+            name,
+            email: data.user.email || '',
+            nip,
+            role: role as any,
+          });
+        }
+      } catch (err: any) {
+        setIsLoading(false);
+        setErrorMessage(err.message || 'Terjadi kesalahan sistem.');
+      }
+    } else {
+      // Mock login fallback
+      setTimeout(() => {
+        setIsLoading(false);
+        const matched = MOCK_USERS.find(
+          (u) => u.email.toLowerCase() === emailOrNip.toLowerCase() || u.nip === emailOrNip
+        ) || {
+          ...selectedPreset,
+          email: emailOrNip,
+        };
+        onLoginSuccess(matched);
+      }, 600);
+    }
   };
 
   return (
@@ -101,6 +136,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            
+            {errorMessage && (
+              <div className="bg-rose-50 text-rose-700 text-xs font-bold p-3 rounded-xl border border-rose-200 text-center animate-fadeIn">
+                {errorMessage}
+              </div>
+            )}
             
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">Email / NIP Pegawai</label>
