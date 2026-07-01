@@ -8,23 +8,11 @@ import { AuditSummaryModal } from './components/AuditSummaryModal';
 import { ReportViewModal } from './components/ReportViewModal';
 import { Login, MOCK_USERS } from './components/Login';
 import { AuditRecord, Category, HospitalUnit, Predicate, AuditChecklistResult, Finding, AuditType, User } from './types';
-import { fetchAudits, fetchCategories, saveAuditRecord, saveCategory, updateAuditRecord, deleteAuditRecord } from './lib/supabase';
+import { fetchAudits, fetchCategories, saveAuditRecord, saveCategory, updateAuditRecord, deleteAuditRecord, supabase } from './lib/supabase';
 import { INITIAL_HOSPITAL_UNITS } from './lib/mockData';
 
-const LOCAL_STORAGE_USER_KEY = 'siak3_current_user';
-
 export function App() {
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    return MOCK_USERS[0]; // Default user Dian Kurnia
-  });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const [currentView, setCurrentView] = useState<NavView>('dashboard');
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -64,13 +52,14 @@ export function App() {
   // Auth Handlers
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
     setCurrentView('dashboard');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setCurrentUser(null);
-    localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
   };
 
   // Handle Add Category
