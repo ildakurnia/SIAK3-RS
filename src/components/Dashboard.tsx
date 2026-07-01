@@ -152,7 +152,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ audits, onNewAudit, onView
                   <th className="py-3.5 px-4 text-center">Hasil Checklist</th>
                   <th className="py-3.5 px-4 text-center">Nilai Audit</th>
                   <th className="py-3.5 px-4 text-center">Predikat</th>
-                  <th className="py-3.5 px-4 sm:px-6 text-right">Aksi</th>
+                  <th className="py-3.5 px-4 sm:px-6 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -187,8 +187,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ audits, onNewAudit, onView
                         {audit.predicate}
                       </span>
                     </td>
-                    <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end space-x-1.5">
+                    <td className="py-4 px-4 sm:px-6 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center space-x-1.5">
                         <button
                           onClick={() => onViewReport(audit)}
                           className="p-2 bg-sky-50 hover:bg-sky-100 active:bg-sky-200 text-sky-700 rounded-xl transition-all border border-sky-200/50 hover:scale-105"
