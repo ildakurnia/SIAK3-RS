@@ -49,11 +49,12 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20 shadow-xs">
       
-      {/* Left Title & Mobile Toggle */}
+      {/* Left Title & Sidebar Toggle */}
       <div className="flex items-center space-x-3">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-xl bg-slate-100 text-slate-600 sm:hidden hover:bg-slate-200"
+          className="p-2 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+          title={isCollapsed ? 'Buka Sidebar' : 'Tutup Sidebar'}
         >
           <Menu className="w-5 h-5" />
         </button>

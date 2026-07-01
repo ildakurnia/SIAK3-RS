@@ -58,14 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
-      {/* Floating Collapse Toggle Button */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-5 w-6.5 h-6.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-50 hidden sm:flex"
-        title={isCollapsed ? 'Buka Sidebar' : 'Tutup Sidebar'}
-      >
-        {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-      </button>
+
 
       {/* Sidebar Header Brand */}
       <div className={`h-16 flex items-center border-b border-slate-800/80 ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
