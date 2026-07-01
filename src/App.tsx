@@ -217,7 +217,7 @@ export function App() {
 
         {/* Footer */}
         <footer className="bg-white border-t border-slate-200/80 py-4 px-8 text-center text-xs text-slate-500 shrink-0">
-          <p>© {new Date().getFullYear()} SIAK3-RS — Sistem Informasi Audit K3 Rumah Sakit Enterprise Edition.</p>
+          <p>© {new Date().getFullYear()} SIAK3-RS — Sistem Informasi Audit K3 Rumah Sakit.</p>
         </footer>
       </div>
 

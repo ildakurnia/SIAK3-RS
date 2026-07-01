@@ -141,17 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ))}
       </div>
 
-      {/* Sidebar Footer info */}
-      <div className="p-3 border-t border-slate-800/80 text-center">
-        {!isCollapsed ? (
-          <div className="bg-slate-800/60 p-2.5 rounded-xl text-[11px] text-slate-400 space-y-0.5">
-            <p className="font-semibold text-slate-300">Versi 1.0 (Enterprise)</p>
-            <p className="text-[10px] text-slate-500">Standar K3RS & KARS</p>
-          </div>
-        ) : (
-          <div className="w-3 h-3 rounded-full bg-emerald-500 mx-auto" title="System Online" />
-        )}
-      </div>
+
     </aside>
   );
 };
