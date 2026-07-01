@@ -138,9 +138,7 @@ export const AuditSummaryModal: React.FC<AuditSummaryModalProps> = ({
                   </span>
                 </div>
 
-                <div className="text-[10px] text-sky-200/80 pt-1.5 border-t border-white/10 mt-2 font-mono">
-                  Formula: ({totalCompliant} ÷ {totalChecklist}) × 100% = {finalScore.toFixed(2)}%
-                </div>
+
               </div>
 
               {/* Final Action Button */}
