@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User } from '../types';
 import { NavView } from './Sidebar';
-import { Database, LogOut, ChevronDown, User as UserIcon, Bell, Menu } from 'lucide-react';
-import { isSupabaseConfigured } from '../lib/supabase';
+import { LogOut, ChevronDown, User as UserIcon, Bell, Menu } from 'lucide-react';
 
 interface HeaderProps {
   currentView: NavView;
@@ -72,18 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Actions & User Profile */}
       <div className="flex items-center space-x-3">
         
-        {/* Status Cloud Database Tag */}
-        <div
-          className={`flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${
-            isSupabaseConfigured
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-amber-50 text-amber-700 border-amber-200'
-          }`}
-          title={isSupabaseConfigured ? 'Terhubung ke Cloud Supabase' : 'Mode Offline / Local DB'}
-        >
-          <Database className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">{isSupabaseConfigured ? 'Supabase Connected' : 'Local DB'}</span>
-        </div>
+
 
         {/* User Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
