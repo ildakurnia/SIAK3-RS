@@ -147,10 +147,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ audits, onNewAudit, onView
             <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
                 <tr className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200/80">
-                  <th className="py-3.5 px-4 sm:px-6">No. Audit</th>
-                  <th className="py-3.5 px-4">Tanggal Audit</th>
-                  <th className="py-3.5 px-4">Unit Kerja</th>
-                  <th className="py-3.5 px-4">Jenis Audit</th>
+                  <th className="py-3.5 px-4 sm:px-6">No. Audit / Tanggal</th>
+                  <th className="py-3.5 px-4">Unit Kerja / Jenis</th>
                   <th className="py-3.5 px-4 text-center">Hasil Checklist</th>
                   <th className="py-3.5 px-4 text-center">Nilai Audit</th>
                   <th className="py-3.5 px-4 text-center">Predikat</th>
@@ -160,22 +158,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ audits, onNewAudit, onView
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {audits.map((audit) => (
                   <tr key={audit.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-4 px-4 sm:px-6 font-bold text-sky-700 whitespace-nowrap">
-                      {audit.auditNumber}
-                    </td>
-                    <td className="py-4 px-4 whitespace-nowrap text-slate-600">
-                      <div className="flex items-center space-x-1.5">
+                    <td className="py-4 px-4 sm:px-6 whitespace-nowrap">
+                      <div className="font-bold text-sky-700">{audit.auditNumber}</div>
+                      <div className="flex items-center space-x-1.5 text-[11px] text-slate-500 mt-0.5">
                         <Calendar className="w-3.5 h-3.5 text-slate-400" />
                         <span>{audit.auditDate}</span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 font-semibold text-slate-900 whitespace-nowrap">
-                      {audit.unitName}
-                    </td>
                     <td className="py-4 px-4 whitespace-nowrap">
-                      <span className="inline-block px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200">
-                        {audit.auditType}
-                      </span>
+                      <div className="font-bold text-slate-900">{audit.unitName}</div>
+                      <div className="mt-1">
+                        <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium border border-slate-200">
+                          {audit.auditType}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-4 px-4 text-center whitespace-nowrap">
                       <span className="text-emerald-700 font-bold">{audit.totalCompliant} Sesuai</span>
@@ -191,35 +187,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ audits, onNewAudit, onView
                         {audit.predicate}
                       </span>
                     </td>
-                    <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap space-x-2">
-                      <button
-                        onClick={() => onViewReport(audit)}
-                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold text-xs rounded-lg transition-colors border border-sky-200"
-                        title="Detail Laporan"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span className="hidden md:inline">Detail</span>
-                      </button>
-                      <button
-                        onClick={() => onEditAudit(audit)}
-                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold text-xs rounded-lg transition-colors border border-amber-200"
-                        title="Edit Audit"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                        <span className="hidden md:inline">Edit</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (window.confirm(`Apakah Anda yakin ingin menghapus data audit ${audit.auditNumber} beserta seluruh temuannya?`)) {
-                            onDeleteAudit(audit.id);
-                          }
-                        }}
-                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs rounded-lg transition-colors border border-rose-200"
-                        title="Hapus Audit"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span className="hidden md:inline">Hapus</span>
-                      </button>
+                    <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end space-x-1.5">
+                        <button
+                          onClick={() => onViewReport(audit)}
+                          className="p-2 bg-sky-50 hover:bg-sky-100 active:bg-sky-200 text-sky-700 rounded-xl transition-all border border-sky-200/50 hover:scale-105"
+                          title="Detail Laporan"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => onEditAudit(audit)}
+                          className="p-2 bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-700 rounded-xl transition-all border border-amber-200/50 hover:scale-105"
+                          title="Edit Audit"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Apakah Anda yakin ingin menghapus data audit ${audit.auditNumber} beserta seluruh temuannya?`)) {
+                              onDeleteAudit(audit.id);
+                            }
+                          }}
+                          className="p-2 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 rounded-xl transition-all border border-rose-200/50 hover:scale-105"
+                          title="Hapus Audit"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
