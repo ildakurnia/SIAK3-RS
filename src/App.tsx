@@ -8,7 +8,7 @@ import { AuditSummaryModal } from './components/AuditSummaryModal';
 import { ReportViewModal } from './components/ReportViewModal';
 import { Login, MOCK_USERS } from './components/Login';
 import { AuditRecord, Category, HospitalUnit, Predicate, AuditChecklistResult, Finding, AuditType, User } from './types';
-import { fetchAudits, fetchCategories, saveAuditRecord, saveCategory } from './lib/supabase';
+import { fetchAudits, fetchCategories, saveAuditRecord, saveCategory, updateAuditRecord, deleteAuditRecord } from './lib/supabase';
 import { INITIAL_HOSPITAL_UNITS } from './lib/mockData';
 
 const LOCAL_STORAGE_USER_KEY = 'siak3_current_user';
@@ -32,6 +32,7 @@ export function App() {
   const [units] = useState<HospitalUnit[]>(INITIAL_HOSPITAL_UNITS);
   const [categories, setCategories] = useState<Category[]>([]);
   const [audits, setAudits] = useState<AuditRecord[]>([]);
+  const [editingAudit, setEditingAudit] = useState<AuditRecord | null>(null);
 
   // Active Draft for Summary Calculation
   const [activeDraft, setActiveDraft] = useState<{
@@ -101,7 +102,7 @@ export function App() {
     const totalCompliant = activeDraft.checklistResults.filter((r) => r.status === 'Sesuai').length;
     const totalNonCompliant = activeDraft.checklistResults.filter((r) => r.status === 'Tidak Sesuai').length;
 
-    const savedRecord = await saveAuditRecord({
+    const auditData = {
       auditNumber: activeDraft.auditNumber,
       auditDate: activeDraft.auditDate,
       auditorName: currentUser.name,
@@ -115,12 +116,28 @@ export function App() {
       predicate,
       checklistResults: activeDraft.checklistResults,
       findings: activeDraft.findings,
-    });
+    };
 
-    setAudits((prev) => [savedRecord, ...prev]);
+    if (editingAudit) {
+      const updatedRecord = await updateAuditRecord(editingAudit.id, auditData);
+      setAudits((prev) => prev.map((a) => (a.id === editingAudit.id ? updatedRecord : a)));
+      setEditingAudit(null);
+    } else {
+      const savedRecord = await saveAuditRecord(auditData);
+      setAudits((prev) => [savedRecord, ...prev]);
+    }
+
     setShowSummaryModal(false);
     setActiveDraft(null);
     setCurrentView('dashboard');
+  };
+
+  // Handle Delete Audit
+  const handleDeleteAudit = async (id: string) => {
+    const success = await deleteAuditRecord(id);
+    if (success) {
+      setAudits((prev) => prev.filter((a) => a.id !== id));
+    }
   };
 
   // Render Login screen if not authenticated
@@ -136,7 +153,10 @@ export function App() {
       {/* Collapsible Left Sidebar */}
       <Sidebar
         currentView={currentView}
-        setCurrentView={setCurrentView}
+        setCurrentView={(view) => {
+          setEditingAudit(null);
+          setCurrentView(view);
+        }}
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
         totalFindingsCount={totalFindingsCount}
@@ -160,8 +180,16 @@ export function App() {
             {currentView === 'dashboard' && (
               <Dashboard
                 audits={audits}
-                onNewAudit={() => setCurrentView('new-audit')}
+                onNewAudit={() => {
+                  setEditingAudit(null);
+                  setCurrentView('new-audit');
+                }}
                 onViewReport={(audit) => setSelectedReportAudit(audit)}
+                onEditAudit={(audit) => {
+                  setEditingAudit(audit);
+                  setCurrentView('new-audit');
+                }}
+                onDeleteAudit={handleDeleteAudit}
                 auditorName={currentUser.name}
               />
             )}
@@ -174,6 +202,7 @@ export function App() {
                 audits={audits}
                 onAddCategory={handleAddCategory}
                 onSaveAuditRequest={handleSaveAuditRequest}
+                editingAudit={editingAudit}
               />
             )}
 

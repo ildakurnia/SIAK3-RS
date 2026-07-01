@@ -1,15 +1,17 @@
 import React from 'react';
 import { AuditRecord } from '../types';
-import { ClipboardList, AlertTriangle, Building2, Eye, Award, PlusCircle, Calendar, FileCheck2 } from 'lucide-react';
+import { ClipboardList, AlertTriangle, Building2, Eye, Award, PlusCircle, Calendar, FileCheck2, Pencil, Trash2 } from 'lucide-react';
 
 interface DashboardProps {
   audits: AuditRecord[];
   onNewAudit: () => void;
   onViewReport: (audit: AuditRecord) => void;
+  onEditAudit: (audit: AuditRecord) => void;
+  onDeleteAudit: (id: string) => void;
   auditorName: string;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ audits, onNewAudit, onViewReport, auditorName }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ audits, onNewAudit, onViewReport, onEditAudit, onDeleteAudit, auditorName }) => {
   const totalAudits = audits.length;
   const totalFindings = audits.reduce((acc, a) => acc + (a.totalNonCompliant || 0), 0);
   const uniqueUnits = new Set(audits.map((a) => a.unitName)).size;
@@ -189,13 +191,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ audits, onNewAudit, onView
                         {audit.predicate}
                       </span>
                     </td>
-                    <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
+                    <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap space-x-2">
                       <button
                         onClick={() => onViewReport(audit)}
                         className="inline-flex items-center space-x-1 px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold text-xs rounded-lg transition-colors border border-sky-200"
+                        title="Detail Laporan"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        <span>Detail Laporan</span>
+                        <span className="hidden md:inline">Detail</span>
+                      </button>
+                      <button
+                        onClick={() => onEditAudit(audit)}
+                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold text-xs rounded-lg transition-colors border border-amber-200"
+                        title="Edit Audit"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span className="hidden md:inline">Edit</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Apakah Anda yakin ingin menghapus data audit ${audit.auditNumber} beserta seluruh temuannya?`)) {
+                            onDeleteAudit(audit.id);
+                          }
+                        }}
+                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs rounded-lg transition-colors border border-rose-200"
+                        title="Hapus Audit"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span className="hidden md:inline">Hapus</span>
                       </button>
                     </td>
                   </tr>

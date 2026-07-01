@@ -19,6 +19,7 @@ interface AuditFormProps {
     checklistResults: AuditChecklistResult[];
     findings: Finding[];
   }) => void;
+  editingAudit?: AuditRecord | null;
 }
 
 export const AuditForm: React.FC<AuditFormProps> = ({
@@ -28,9 +29,12 @@ export const AuditForm: React.FC<AuditFormProps> = ({
   audits,
   onAddCategory,
   onSaveAuditRequest,
+  editingAudit = null,
 }) => {
   // Form Info Header State (Berurutan Bulanan: AUD-K3-YYYYMM-XXX)
   const [auditNumber] = useState(() => {
+    if (editingAudit) return editingAudit.auditNumber;
+
     const now = new Date();
     const yearStr = now.getFullYear();
     const monthStr = String(now.getMonth() + 1).padStart(2, '0');
@@ -48,19 +52,64 @@ export const AuditForm: React.FC<AuditFormProps> = ({
     return `${prefix}${seqStr}`;
   });
 
-  const [auditDate, setAuditDate] = useState(new Date().toISOString().split('T')[0]);
-  const [auditor, setAuditor] = useState(auditorName);
-  const [selectedUnitId, setSelectedUnitId] = useState<number>(units[0]?.id || 1);
-  const [auditType, setAuditType] = useState<AuditType>('Internal');
+  const [auditDate, setAuditDate] = useState(() => {
+    return editingAudit ? editingAudit.auditDate : new Date().toISOString().split('T')[0];
+  });
+  const [auditor, setAuditor] = useState(() => {
+    return editingAudit ? editingAudit.auditorName : auditorName;
+  });
+  const [selectedUnitId, setSelectedUnitId] = useState<number>(() => {
+    return editingAudit ? editingAudit.unitId : (units[0]?.id || 1);
+  });
+  const [auditType, setAuditType] = useState<AuditType>(() => {
+    return editingAudit ? editingAudit.auditType : 'Internal';
+  });
 
   // Dynamic Items per Category State
   const [dynamicCategories, setDynamicCategories] = useState<Category[]>(categories);
 
   // Checklist Status State: {[itemId]: 'Sesuai' | 'Tidak Sesuai'}
-  const [checklistValues, setChecklistValues] = useState<Record<string, 'Sesuai' | 'Tidak Sesuai'>>({});
+  const [checklistValues, setChecklistValues] = useState<Record<string, 'Sesuai' | 'Tidak Sesuai'>>(() => {
+    if (!editingAudit) return {};
+    const initial: Record<string, 'Sesuai' | 'Tidak Sesuai'> = {};
+    editingAudit.checklistResults.forEach((res) => {
+      initial[res.itemId] = res.status;
+    });
+    return initial;
+  });
 
   // Findings State: {[itemId]: Finding}
-  const [findingsMap, setFindingsMap] = useState<Record<string, Finding>>({});
+  const [findingsMap, setFindingsMap] = useState<Record<string, Finding>>(() => {
+    if (!editingAudit) return {};
+    const initial: Record<string, Finding> = {};
+    editingAudit.checklistResults.forEach((res) => {
+      if (res.finding) {
+        initial[res.itemId] = res.finding;
+      }
+    });
+    return initial;
+  });
+
+  // Sync with editingAudit if it changes
+  React.useEffect(() => {
+    if (editingAudit) {
+      setAuditDate(editingAudit.auditDate);
+      setAuditor(editingAudit.auditorName);
+      setSelectedUnitId(editingAudit.unitId);
+      setAuditType(editingAudit.auditType);
+
+      const initialValues: Record<string, 'Sesuai' | 'Tidak Sesuai'> = {};
+      const initialFindings: Record<string, Finding> = {};
+      editingAudit.checklistResults.forEach((res) => {
+        initialValues[res.itemId] = res.status;
+        if (res.finding) {
+          initialFindings[res.itemId] = res.finding;
+        }
+      });
+      setChecklistValues(initialValues);
+      setFindingsMap(initialFindings);
+    }
+  }, [editingAudit]);
 
   // Modal States
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
@@ -228,9 +277,9 @@ export const AuditForm: React.FC<AuditFormProps> = ({
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <FileCheck className="w-6 h-6 text-sky-600" /> 1. Informasi Audit
+              <FileCheck className="w-6 h-6 text-sky-600" /> 1. Informasi Audit {editingAudit ? '(Edit)' : ''}
             </h2>
-            <p className="text-xs text-slate-500 mt-1">Identitas transaksi audit K3 rumah sakit yang sedang dilaksanakan.</p>
+            <p className="text-xs text-slate-500 mt-1">Identitas transaksi audit K3 rumah sakit yang sedang {editingAudit ? 'diperbarui' : 'dilaksanakan'}.</p>
           </div>
           <span className="bg-sky-50 text-sky-800 text-xs font-bold px-3 py-1.5 rounded-full border border-sky-200">
             {auditNumber}
@@ -473,7 +522,7 @@ export const AuditForm: React.FC<AuditFormProps> = ({
             className="inline-flex items-center space-x-2.5 bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-700 hover:to-blue-800 text-white text-base font-extrabold px-8 py-4 rounded-2xl shadow-xl shadow-sky-600/25 transition-all transform hover:-translate-y-1 active:translate-y-0"
           >
             <Save className="w-5 h-5" />
-            <span>Simpan Audit</span>
+            <span>{editingAudit ? 'Simpan Perubahan' : 'Simpan Audit'}</span>
           </button>
         </div>
       </div>
